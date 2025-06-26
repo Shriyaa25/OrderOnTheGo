@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Signup | OrderOnTheGo</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="auth-container">
+    <h2>Signup for SB Foods</h2>
+    <form id="signupForm">
+      <label>Username:</label>
+      <input type="text" id="username" required />
+
+      <label>Password:</label>
+      <input type="password" id="password" required />
+
+      <label>Role:</label>
+      <select id="role">
+  <option value="user">User</option>
+  <option value="restaurant">Restaurant</option>
+  <option value="admin">Admin</option>
+</select>
+
+
+      <button type="submit">Signup</button>
+      <p>Already have an account? <a href="login.html">Login</a></p>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById("signupForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const role = document.getElementById("role").value;
+
+      if (!username || !password) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      // Load existing users
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+
+      // Check for duplicate username
+      if (users.find(u => u.username === username)) {
+        alert("Username already exists. Try a different one.");
+        return;
+      }
+
+      // Add new user
+      const newUser = { username, password, role };
+      users.push(newUser);
+      localStorage.setItem("users", JSON.stringify(users));
+
+      alert("Signup successful! Please login.");
+      window.location.href = "login.html";
+    });
+  </script>
+</body>
+</html>

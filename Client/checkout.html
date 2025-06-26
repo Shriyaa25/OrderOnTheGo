@@ -1,0 +1,44 @@
+<!-- client/checkout.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout | OrderOnTheGo</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Checkout</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="cart.html">Cart</a>
+      <a href="orders.html">My Orders</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="checkout-container">
+      <form id="checkoutForm">
+        <label>Name:</label>
+        <input type="text" id="name" placeholder="Enter your name" required />
+
+        <label>Delivery Address:</label>
+        <textarea id="address" placeholder="Enter delivery address" required></textarea>
+
+        <label>Payment Method:</label>
+        <select id="payment" required>
+          <option value="">Select</option>
+          <option value="Cash on Delivery">Cash on Delivery</option>
+          <option value="Credit/Debit Card">Credit/Debit Card</option>
+          <option value="UPI">UPI</option>
+        </select>
+
+        <button type="submit">Place Order</button>
+      </form>
+    </div>
+  </main>
+
+  <script src="checkout.js" defer></script>
+</body>
+</html>

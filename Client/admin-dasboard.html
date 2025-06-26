@@ -1,0 +1,65 @@
+<!-- client/admin-dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard | OrderOnTheGo</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Admin Dashboard</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </nav>
+  </header>
+
+  <main>
+    <section>
+      <h2>All Registered Users</h2>
+      <div id="userList"></div>
+    </section>
+
+    <section>
+      <h2>All Orders</h2>
+      <div id="orderList"></div>
+    </section>
+  </main>
+
+  <script>
+    function logout() {
+      localStorage.removeItem("loggedInUser");
+      window.location.href = "login.html";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const userList = document.getElementById("userList");
+      const orderList = document.getElementById("orderList");
+
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      const orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+      userList.innerHTML = users.map(u => `<p>${u.username} (${u.role})</p>`).join("");
+
+      if (orders.length === 0) {
+        orderList.innerHTML = "<p>No orders placed yet.</p>";
+      } else {
+        orderList.innerHTML = orders.map(order => `
+          <div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+            <p><strong>Name:</strong> ${order.name}</p>
+            <p><strong>Address:</strong> ${order.address}</p>
+            <p><strong>Payment:</strong> ${order.payment}</p>
+            <p><strong>Time:</strong> ${order.date}</p>
+            <p><strong>Items:</strong></p>
+            <ul>
+              ${order.cart.map(item => `<li>${item.name} x${item.quantity}</li>`).join("")}
+            </ul>
+          </div>
+        `).join("");
+      }
+    });
+  </script>
+</body>
+</html>

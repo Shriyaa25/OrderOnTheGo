@@ -1,0 +1,39 @@
+<!-- client/restaurant-dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Restaurant Dashboard | SB Foods</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Restaurant Dashboard</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="#" onclick="logout()">Logout</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="product-form">
+      <h2>Add New Product</h2>
+      <form id="addProductForm">
+        <input type="text" id="productName" placeholder="Product Name" required />
+        <input type="number" id="productPrice" placeholder="Price (₹)" required />
+        <input type="text" id="productDesc" placeholder="Description" required />
+        <input type="text" id="productImg" placeholder="Image filename (e.g., burger.jpeg)" required />
+        <button type="submit">Add Product</button>
+      </form>
+    </section>
+
+    <section class="restaurant-products">
+      <h2>Your Products</h2>
+      <div id="productList"></div>
+    </section>
+  </main>
+
+  <script src="restaurant.js" defer></script>
+</body>
+</html>

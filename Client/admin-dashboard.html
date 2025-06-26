@@ -1,0 +1,108 @@
+<!-- client/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OrderOnTheGo | SB Foods</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>OrderOnTheGo</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="cart.html">Cart</a>
+      <a href="login.html">Login</a>
+      <a href="orders.html">My Orders</a>
+      <a href="#" onclick="logoutUser()">Logout</a>
+    </nav>
+  </header>
+
+  <main>
+    <h2>Popular Dishes</h2>
+    <div class="product-list" id="productList">
+      <!-- Products will be rendered by JavaScript -->
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 OrderOnTheGo</p>
+  </footer>
+
+  <script>
+    function renderProducts() {
+      const container = document.getElementById("productList");
+
+      // Default hardcoded products
+      let products = [
+        {
+          name: "Chicken Noodle Soup",
+          price: 199,
+          desc: "Warm and comforting – perfect for late nights!",
+          img: "soup.jpg"
+        },
+        {
+          name: "Veg Burger",
+          price: 149,
+          desc: "Crispy patty with fresh veggies and mayo",
+          img: "burger.jpeg"
+        },
+        {
+          name: "Margherita Pizza",
+          price: 249,
+          desc: "Classic cheese burst pizza with basil",
+          img: "pizza2.jpeg"
+        },
+        {
+          name: "French Fries",
+          price: 99,
+          desc: "Golden, crispy fries with ketchup",
+          img: "fries.jpeg"
+        }
+      ];
+
+      // Fetch restaurant-added products
+      const dynamicProducts = JSON.parse(localStorage.getItem("restaurantProducts")) || [];
+
+      // Combine both arrays
+      products = [...products, ...dynamicProducts];
+
+      container.innerHTML = "";
+
+      products.forEach(p => {
+        const card = document.createElement("div");
+        card.className = "product-card";
+        card.innerHTML = `
+          <img src="${p.img}" alt="${p.name}" width="300" height="300" />
+          <h3>${p.name}</h3>
+          <p>${p.desc}</p>
+          <p>₹${p.price}</p>
+          <button onclick="addToCart('${p.name}', ${p.price})">Add to Cart</button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function addToCart(name, price) {
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const existing = cart.find(item => item.name === name);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        cart.push({ name, price, quantity: 1 });
+      }
+      localStorage.setItem("cart", JSON.stringify(cart));
+      alert(`${name} added to cart!`);
+    }
+
+    function logoutUser() {
+      localStorage.removeItem("loggedInUser");
+      alert("Logged out!");
+      window.location.href = "login.html";
+    }
+
+    document.addEventListener("DOMContentLoaded", renderProducts);
+  </script>
+</body>
+</html>
