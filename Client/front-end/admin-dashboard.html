@@ -1,108 +1,98 @@
-<!-- client/index.html -->
+<!-- client/admin-dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OrderOnTheGo | SB Foods</title>
+  <title>Admin Dashboard | SB Foods</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <h1>OrderOnTheGo</h1>
+    <h1>Admin Dashboard</h1>
     <nav>
       <a href="index.html">Home</a>
-      <a href="cart.html">Cart</a>
-      <a href="login.html">Login</a>
-      <a href="orders.html">My Orders</a>
-      <a href="#" onclick="logoutUser()">Logout</a>
+      <a href="#" onclick="logout()">Logout</a>
     </nav>
   </header>
 
   <main>
-    <h2>Popular Dishes</h2>
-    <div class="product-list" id="productList">
-      <!-- Products will be rendered by JavaScript -->
-    </div>
+    <section>
+      <h2>Registered Restaurants</h2>
+      <ul id="restaurantUsers"></ul>
+    </section>
+
+    <section>
+      <h2>Placed Orders</h2>
+      <div id="orderList"></div>
+    </section>
+
+    <section>
+      <h2>Restaurant Products</h2>
+      <div id="productList"></div>
+    </section>
   </main>
 
-  <footer>
-    <p>&copy; 2025 OrderOnTheGo</p>
-  </footer>
-
   <script>
-    function renderProducts() {
-      const container = document.getElementById("productList");
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const orders = JSON.parse(localStorage.getItem("orders")) || [];
+    const products = JSON.parse(localStorage.getItem("restaurantProducts")) || [];
 
-      // Default hardcoded products
-      let products = [
-        {
-          name: "Chicken Noodle Soup",
-          price: 199,
-          desc: "Warm and comforting – perfect for late nights!",
-          img: "soup.jpg"
-        },
-        {
-          name: "Veg Burger",
-          price: 149,
-          desc: "Crispy patty with fresh veggies and mayo",
-          img: "burger.jpeg"
-        },
-        {
-          name: "Margherita Pizza",
-          price: 249,
-          desc: "Classic cheese burst pizza with basil",
-          img: "pizza2.jpeg"
-        },
-        {
-          name: "French Fries",
-          price: 99,
-          desc: "Golden, crispy fries with ketchup",
-          img: "fries.jpeg"
-        }
-      ];
+    // Show restaurant users
+    const restaurantUsers = users.filter(u => u.role === "restaurant");
+    const restaurantList = document.getElementById("restaurantUsers");
+    if (restaurantUsers.length === 0) {
+      restaurantList.innerHTML = "<li>No restaurants registered.</li>";
+    } else {
+      restaurantUsers.forEach(u => {
+        const li = document.createElement("li");
+        li.textContent = u.username;
+        restaurantList.appendChild(li);
+      });
+    }
 
-      // Fetch restaurant-added products
-      const dynamicProducts = JSON.parse(localStorage.getItem("restaurantProducts")) || [];
+    // Show orders
+    const orderContainer = document.getElementById("orderList");
+    if (orders.length === 0) {
+      orderContainer.innerHTML = "<p>No orders placed yet.</p>";
+    } else {
+      orders.forEach(order => {
+        const div = document.createElement("div");
+        div.className = "order";
+        div.innerHTML = `
+          <p><strong>Name:</strong> ${order.name}</p>
+          <p><strong>Address:</strong> ${order.address}</p>
+          <p><strong>Payment:</strong> ${order.payment}</p>
+          <p><strong>Items:</strong> ${order.cart.map(i => `${i.name} (x${i.quantity})`).join(", ")}</p>
+          <p><strong>Date:</strong> ${order.date}</p>
+          <hr />
+        `;
+        orderContainer.appendChild(div);
+      });
+    }
 
-      // Combine both arrays
-      products = [...products, ...dynamicProducts];
-
-      container.innerHTML = "";
-
+    // Show restaurant products
+    const productContainer = document.getElementById("productList");
+    if (products.length === 0) {
+      productContainer.innerHTML = "<p>No products added by restaurants.</p>";
+    } else {
       products.forEach(p => {
         const card = document.createElement("div");
         card.className = "product-card";
         card.innerHTML = `
-          <img src="${p.img}" alt="${p.name}" width="300" height="300" />
+          <img src="${p.img}" alt="${p.name}" width="200" />
           <h3>${p.name}</h3>
           <p>${p.desc}</p>
           <p>₹${p.price}</p>
-          <button onclick="addToCart('${p.name}', ${p.price})">Add to Cart</button>
         `;
-        container.appendChild(card);
+        productContainer.appendChild(card);
       });
     }
 
-    function addToCart(name, price) {
-      let cart = JSON.parse(localStorage.getItem("cart")) || [];
-      const existing = cart.find(item => item.name === name);
-      if (existing) {
-        existing.quantity += 1;
-      } else {
-        cart.push({ name, price, quantity: 1 });
-      }
-      localStorage.setItem("cart", JSON.stringify(cart));
-      alert(`${name} added to cart!`);
-    }
-
-    function logoutUser() {
+    function logout() {
       localStorage.removeItem("loggedInUser");
-      alert("Logged out!");
       window.location.href = "login.html";
     }
-
-    document.addEventListener("DOMContentLoaded", renderProducts);
   </script>
 </body>
 </html>
