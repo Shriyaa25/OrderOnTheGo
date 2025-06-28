@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Register - SB Foods</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #ffecd2, #fcb69f);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .form-box {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 15px 25px rgba(0,0,0,0.2);
+      width: 320px;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      background: #f0f0f0;
+      font-size: 16px;
+    }
+    button {
+      background-color: #ff7e5f;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background-color: #eb5e43;
+    }
+    .toggle-btn {
+      cursor: pointer;
+      font-size: 13px;
+      color: #007bff;
+      position: absolute;
+      top: 50%;
+      right: 15px;
+      transform: translateY(-50%);
+    }
+    .password-wrapper {
+      position: relative;
+    }
+    #response {
+      color: green;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-box">
+    <h2>Create Account</h2>
+    <form id="registerForm">
+      <input type="text" name="username" placeholder="Username" required />
+      <input type="email" name="email" placeholder="Email" required />
+      <div class="password-wrapper">
+        <input type="password" name="password" id="regPassword" placeholder="Password" required />
+        <span class="toggle-btn" onclick="togglePassword()">Show</span>
+      </div>
+      <select name="userType" required>
+        <option value="user">User</option>
+        <option value="restaurant">Restaurant</option>
+      </select>
+      <button type="submit">Register</button>
+    </form>
+    <p id="response"></p>
+  </div>
+
+  <script>
+    function togglePassword() {
+      const input = document.getElementById("regPassword");
+      const btn = document.querySelector(".toggle-btn");
+      if (input.type === "password") {
+        input.type = "text";
+        btn.innerText = "Hide";
+      } else {
+        input.type = "password";
+        btn.innerText = "Show";
+      }
+    }
+
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const user = {
+        username: form.get("username"),
+        email: form.get("email"),
+        password: form.get("password"),
+        userType: form.get("userType")
+      };
+
+      try {
+        const res = await fetch("http://localhost:5000/api/users/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(user)
+        });
+        const data = await res.json();
+        document.getElementById("response").innerText = data.message || data.error;
+        if (res.ok) setTimeout(() => location.href = "login.html", 1500);
+      } catch (err) {
+        document.getElementById("response").innerText = "Server error!";
+      }
+    });
+  </script>
+</body>
+</html>
