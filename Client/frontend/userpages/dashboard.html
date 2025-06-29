@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SB Foods - Dashboard</title>
+  <link rel="stylesheet" href="dashboard.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>👤 Your Dashboard</h1>
+    <button onclick="logout()" class="logout-btn">Logout</button>
+  </header>
+  <nav class="nav-bar">
+  <a href="home.html">🏠 Home</a>
+  <a href="cart.html">🛒 Cart</a>
+  <a href="wishlist.html">❤️ Wishlist</a>
+</nav>
+
+
+  <main>
+    <section class="profile-section">
+      <h2>Profile</h2>
+      <p><strong>Username:</strong> <span id="username"></span></p>
+      <p><strong>Email:</strong> <span id="email"></span></p>
+      <button onclick="editProfile()">Edit Profile</button>
+      <button class="delete-btn" onclick="deleteAccount()">Delete Account</button>
+    </section>
+
+    <section class="order-history-section">
+      <h2>Your Orders</h2>
+      <div id="ordersList"></div>
+    </section>
+  </main>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

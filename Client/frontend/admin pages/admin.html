@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f4f8;
+    }
+
+    header {
+      background: linear-gradient(135deg, #4b6cb7, #182848);
+      color: white;
+      padding: 25px 10px;
+      text-align: center;
+      font-size: 26px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      letter-spacing: 1px;
+      position: relative;
+    }
+
+    .logout-btn {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      background: #fff;
+      color: #182848;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .logout-btn:hover { background: #e6e6e6; }
+
+    .container {
+      padding: 30px;
+      max-width: 1300px;
+      margin: auto;
+    }
+
+    .cards {
+      display: flex;
+      gap: 25px;
+      flex-wrap: wrap;
+      margin-bottom: 40px;
+      justify-content: center;
+    }
+
+    .card {
+      flex: 1;
+      min-width: 220px;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .card:hover { transform: translateY(-4px); }
+
+    .card h2 {
+      font-size: 36px;
+      color: #4b6cb7;
+      margin: 0;
+    }
+
+    .card p {
+      margin-top: 10px;
+      font-size: 18px;
+      color: #666;
+    }
+
+    h3 {
+      margin-top: 40px;
+      color: #182848;
+      font-size: 22px;
+      position: relative;
+    }
+
+    h3::after {
+      content: '';
+      display: block;
+      width: 60px;
+      height: 3px;
+      background: #4b6cb7;
+      margin-top: 5px;
+      border-radius: 2px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 14px 20px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f9f9f9;
+      color: #333;
+    }
+
+    tr:hover { background-color: #f1f7ff; }
+
+    button {
+      background: #ff4d4d;
+      border: none;
+      padding: 6px 12px;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover { background: #e60000; }
+  </style>
+</head>
+<body>
+  <header>
+    🍽️ SB-Foods Admin Dashboard
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </header>
+
+  <div class="container">
+    <div class="cards">
+      <div class="card">
+        <h2 id="userCount">--</h2>
+        <p>Total Users</p>
+      </div>
+      <div class="card">
+        <h2 id="restaurantCount">--</h2>
+        <p>Total Restaurants</p>
+      </div>
+    </div>
+
+    <h3>👤 Users</h3>
+    <table id="usersTable">
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h3>🏢 Restaurants</h3>
+    <table id="restaurantsTable">
+      <thead>
+        <tr>
+          <th>Restaurant ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Items</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <h3>📦 Orders (User ➡️ Restaurant)</h3>
+    <table id="adminOrdersTable">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Ordered Product</th>
+          <th>Restaurant</th>
+          <th>Ordered At</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    const api = "http://localhost:5000/api/admin";
+    if (localStorage.getItem("adminLoggedIn") !== "true") {
+      alert("⚠️ Unauthorized. Please login as Admin.");
+      location.href = "../login.html";
+    }
+
+    async function loadDashboard() {
+      try {
+        // Load stats
+        const stats = await (await fetch(`${api}/stats`)).json();
+        document.getElementById("userCount").textContent = stats.userCount;
+        document.getElementById("restaurantCount").textContent = stats.restaurantCount;
+
+        // Load users
+        const users = await (await fetch(`${api}/users`)).json();
+        const usersTable = document.querySelector("#usersTable tbody");
+        usersTable.innerHTML = users.map(u => {
+          const isBlocked = u.blockedUntil && new Date(u.blockedUntil) > new Date();
+          return `
+            <tr>
+              <td>${u._id}</td>
+              <td>${u.username}</td>
+              <td>${u.email}</td>
+              <td>
+                <button onclick="deleteUser('${u._id}')">Delete</button>
+                ${isBlocked ? `⛔ Blocked` :
+                  `<button onclick="blockUser('${u._id}')">Block</button>`}
+                ${isBlocked ? `<button onclick="unblockUser('${u._id}')">Unblock</button>` : ""}
+              </td>
+            </tr>
+          `;
+        }).join("");
+
+        // Load restaurants
+        const restaurants = await (await fetch(`${api}/restaurants`)).json();
+        const restTable = document.querySelector("#restaurantsTable tbody");
+        restTable.innerHTML = "";
+
+        for (const r of restaurants) {
+          const products = await (await fetch(`${api}/products/${r._id}`)).json();
+
+          restTable.innerHTML += `
+            <tr>
+              <td>${r._id}</td>
+              <td>${r.username}</td>
+              <td>${r.email}</td>
+              <td>
+                <a href="products.html?restaurantId=${r._id}" target="_blank">${products.length} items</a>
+              </td>
+              <td><button onclick="deleteRestaurant('${r._id}')">Delete</button></td>
+            </tr>
+          `;
+        }
+
+        // Load Orders
+        const res = await fetch(`${api}/orders`);
+        const orders = await res.json();
+        const ordersTable = document.querySelector("#adminOrdersTable tbody");
+
+        ordersTable.innerHTML = orders.map(order =>
+          order.products.map(p => `
+            <tr>
+              <td>${order.userId?.username || "Unknown"}</td>
+              <td>${p.productId?.name || "Unknown Product"}</td>
+              <td>${p.restaurantId?.username || "Unknown Restaurant"}</td>
+              <td>${new Date(order.orderedAt).toLocaleString()}</td>
+            </tr>
+          `).join("")
+        ).join("");
+
+      } catch (err) {
+        alert("❌ Error loading dashboard");
+        console.error(err);
+      }
+    }
+
+    function blockUser(userId) {
+      const hours = prompt("Block for how many hours?");
+      if (!hours) return;
+      fetch(`${api}/block/${userId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hours: parseInt(hours) })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message);
+        loadDashboard();
+      });
+    }
+
+    function unblockUser(userId) {
+      fetch(`${api}/unblock/${userId}`, { method: "POST" })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message);
+        loadDashboard();
+      });
+    }
+
+    function deleteUser(userId) {
+      if (!confirm("Delete this user?")) return;
+      fetch(`${api}/delete-user/${userId}`, { method: "DELETE" })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message);
+        loadDashboard();
+      });
+    }
+
+    function deleteRestaurant(id) {
+      if (!confirm("Delete this restaurant?")) return;
+      fetch(`${api}/delete/${id}`, { method: "DELETE" })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message);
+        loadDashboard();
+      });
+    }
+
+    function logout() {
+      localStorage.removeItem("adminLoggedIn");
+      location.href = "../login.html";
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>

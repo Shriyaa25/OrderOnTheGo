@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cart - SB Foods</title>
+  <link rel="stylesheet" href="cart.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>🛒 My Cart</h1>
+    <nav>
+      <a href="home.html">🏠 Home</a>
+      <a href="wishlist.html">❤️ Wishlist</a>
+      <a href="dashboard.html">👤 Dashboard</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="cartItems"></section>
+    <div class="actions">
+      <button onclick="orderAll()">✅ Order All</button>
+      <button onclick="clearCart()">🗑️ Clear Cart</button>
+    </div>
+  </main>
+
+  <script src="cart.js"></script>
+</body>
+</html>

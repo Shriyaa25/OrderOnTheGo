@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SB Foods - Home</title>
+  <link rel="stylesheet" href="home.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>🍽️ SB Foods</h1>
+    <input type="text" id="searchInput" placeholder="Search dishes or restaurants..." />
+    <div class="nav-links">
+      <a href="wishlist.html">❤️ Wishlist</a>
+      <a href="cart.html">🛒 Cart</a>
+      <a href="dashboard.html">👤 Dashboard</a>
+    </div>
+  </header>
+
+  <div class="container">
+    <aside class="filter-sidebar">
+      <h3>Filter</h3>
+      <label>Category</label>
+      <select id="categoryFilter">
+        <option value="">All</option>
+        <option value="snacks">Snacks</option>
+        <option value="meals">Meals</option>
+        <option value="drinks">Drinks</option>
+      </select>
+
+      <label>Max Price</label>
+      <input type="range" id="priceRange" min="0" max="1000" value="1000">
+      <span id="priceLabel">₹1000</span>
+    </aside>
+
+    <main id="productList">
+      <!-- Products will be injected here -->
+       <section id="popularSection">
+  <h2>🔥 Popular Restaurants</h2>
+  <div id="popularRestaurants" class="card-section"></div>
+
+  <h2>⭐ Popular Dishes</h2>
+  <div id="popularDishes" class="card-section"></div>
+</section>
+
+    </main>
+  </div>
+
+  <script src="home.js"></script>
+</body>
+</html>

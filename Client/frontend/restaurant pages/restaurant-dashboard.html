@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Restaurant Dashboard - SB Foods</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to right, #fbc2eb, #a6c1ee);
+      min-height: 100vh;
+    }
+
+    header {
+      background: #4b6cb7;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      position: relative;
+    }
+
+    .logout-btn {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      background: white;
+      color: #4b6cb7;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      animation: fadeIn 1s ease-in;
+    }
+
+    h2 {
+      color: #4b6cb7;
+      margin-bottom: 10px;
+    }
+
+    form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    input {
+      flex: 1;
+      background: #f0f0f0;
+    }
+
+    button {
+      background: #4b6cb7;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #3a4a8c;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+    }
+
+    th {
+      background: #f8f8f8;
+    }
+
+    .section {
+      margin-top: 40px;
+    }
+
+    .total-earnings {
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #2d3a6c;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media(max-width: 600px) {
+      form {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    🍴 Welcome, Restaurant Dashboard
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </header>
+
+  <div class="container">
+    <h2>Add New Product</h2>
+    <form id="productForm">
+      <input type="text" name="name" placeholder="Product Name" required />
+      <input type="number" name="price" placeholder="Price" required />
+      <input type="text" name="description" placeholder="Short Description" />
+      <input type="text" name="imageUrl" placeholder="Image URL (https://...)" />
+      <button type="submit">Add Product</button>
+    </form>
+
+    <div class="section">
+      <h2>Your Products</h2>
+      <table id="productsTable">
+        <thead>
+          <tr>
+            <th>Food Name</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>Orders From Users</h2>
+      <table id="ordersTable">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Ordered Item(s)</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="total-earnings">Total Earnings: ₹<span id="totalEarnings">0</span></div>
+    </div>
+  </div>
+
+  <script>
+    const api = "http://localhost:5000/api";
+    const userId = localStorage.getItem("userId");
+    const userType = localStorage.getItem("userType");
+
+    if (!userId || userType !== "restaurant") {
+      alert("⚠️ You must log in as a restaurant to access this page.");
+      location.href = "../login.html";
+    }
+
+    // Load Products
+    async function loadProducts() {
+      try {
+        const res = await fetch(`${api}/products/restaurant/${userId}`);
+        const data = await res.json();
+        const tbody = document.querySelector("#productsTable tbody");
+        tbody.innerHTML = data.map(p => `
+          <tr>
+            <td>${p.name}</td>
+            <td>₹${p.price}</td>
+          </tr>
+        `).join("");
+      } catch (err) {
+        alert("❌ Failed to load products");
+      }
+    }
+
+    // Load Orders and Calculate Earnings
+    async function loadOrders() {
+      try {
+        const res = await fetch(`${api}/orders/restaurant/${userId}`);
+        const orders = await res.json();
+        const tbody = document.querySelector("#ordersTable tbody");
+        const earningsSpan = document.getElementById("totalEarnings");
+
+        let total = 0;
+
+        tbody.innerHTML = orders.map(order => {
+          const user = order.user;
+          const items = order.products.map(p => {
+            total += p.productId?.price || 0;
+            return p.productId?.name || "Unknown";
+          }).join(", ");
+
+          return `
+            <tr>
+              <td>${user.username}</td>
+              <td>${user.email}</td>
+              <td>${items}</td>
+            </tr>
+          `;
+        }).join("");
+
+        earningsSpan.textContent = total;
+      } catch (err) {
+        alert("❌ Failed to load orders");
+      }
+    }
+
+    // Add Product
+    document.getElementById("productForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const product = {
+        name: form.get("name"),
+        price: form.get("price"),
+        description: form.get("description"),
+        imageUrl: form.get("imageUrl"),
+        restaurant: userId
+      };
+
+      try {
+        const res = await fetch(`${api}/products/add`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(product)
+        });
+
+        const data = await res.json();
+        alert(data.message || "✅ Product added!");
+        e.target.reset();
+        loadProducts();
+      } catch (err) {
+        alert("❌ Failed to add product.");
+      }
+    });
+
+    function logout() {
+      localStorage.clear();
+      location.href = "../login.html";
+    }
+
+    loadProducts();
+    loadOrders();
+  </script>
+</body>
+</html>

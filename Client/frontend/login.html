@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+
   <title>Login - SB Foods</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
   <style>
@@ -57,7 +59,7 @@
     }
     #response {
       margin-top: 12px;
-      color: green;
+      color: red;
     }
   </style>
 </head>
@@ -72,10 +74,13 @@
       </div>
       <button type="submit">Login</button>
     </form>
+    <p>Don't have an account? <a href="signup.html" style="color:#007bff;">Sign up</a></p>
     <p id="response"></p>
   </div>
 
   <script>
+   
+
     function togglePassword() {
       const input = document.getElementById("loginPassword");
       const btn = document.querySelector(".toggle-btn");
@@ -102,11 +107,46 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(user)
         });
+
         const data = await res.json();
-        document.getElementById("response").innerText = data.message || data.error;
-        if (res.ok) setTimeout(() => location.href = "products.html", 1500);
+        const responseText = document.getElementById("response");
+
+        if (!res.ok) {
+          responseText.innerText = data.error || "Login failed";
+          responseText.style.color = "red";
+          return;
+        }
+
+        responseText.innerText = data.message;
+        responseText.style.color = "green";
+
+        // 🌟 Save restaurant ID if applicable
+  
+
+
+        setTimeout(() => {
+  if (data.user.userType === "admin") {
+    localStorage.setItem("adminLoggedIn", "true");
+    location.href = "admin pages/admin.html";
+
+  } else if (data.user.userType === "restaurant") {
+    localStorage.setItem("restaurantId", data.user.id);
+    localStorage.setItem("userId", data.user.id);
+    localStorage.setItem("userType", "restaurant");
+    localStorage.setItem("username", data.user.username);
+    location.href = "restaurant pages/restaurant-dashboard.html";
+
+  } else {
+    localStorage.setItem("userId", data.user.id);
+    localStorage.setItem("userType", "user");
+    localStorage.setItem("username", data.user.username);
+    location.href = "userpages/dashboard.html";
+  }
+}, 1500);
+
+
       } catch (err) {
-        document.getElementById("response").innerText = "Server error!";
+        document.getElementById("response").innerText = "❌ Server error!";
       }
     });
   </script>
